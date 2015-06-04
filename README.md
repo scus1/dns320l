@@ -42,9 +42,12 @@ TODO
 Tested with
 -----------
 **Works with**
-* **3.16** https://github.com/torvalds/linux/archive/v3.16.tar.gz
+
+* linux-3.16 (https://github.com/torvalds/linux/archive/v3.16.tar.gz)
+
 **Doesn't work**
-* **4.0.**
+
+* linux-4.0.4
     ```
      ** MARVELL BOARD: DB-88F6702A-BP LE 
     
@@ -107,7 +110,7 @@ Tested with
     Flags: nZCv  IRQs off  FIQs off  Mode SVC_32
     Resetting CPU ...
     ```
-* **3.18.14**
+* linux-3.18.14
     ```
     ** MARVELL BOARD: DB-88F6702A-BP LE 
     
