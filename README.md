@@ -1,6 +1,5 @@
 # Linux on D-Link DNS-320L
 
-
 Building the kernel
 -------------------
 
@@ -13,6 +12,13 @@ $ sh ../configure.sh
 $ sh ../build.sh
 $ sh ../install.sh
 ```
+
+MCU
+------------
+TODO
+
+
+
 
 References
 ----------
