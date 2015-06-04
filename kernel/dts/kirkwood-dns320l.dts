@@ -1,5 +1,13 @@
 /dts-v1/;
 
+/* CREDITS
+ *
+ * Device tree for D-Link DNS-320L
+ * based on the work of Andreas Böhler:
+ *   - http://www.aboehler.at/doku/doku.php/projects:dns320l
+ *   - http://www.aboehler.at/hg/linux-dns320l/file/ba7a60ad7687/linux-3.12/kirkwood-dns320l.dts
+ */
+
 #include "kirkwood.dtsi"
 #include "kirkwood-6281.dtsi"
 
