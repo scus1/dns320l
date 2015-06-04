@@ -8,4 +8,4 @@ cross-make -j8 zImage kirkwood-dns320l.dtb
 cat arch/arm/boot/kirkwood-dns320l.dtb >> arch/arm/boot/zImage
 
 cross-make uImage
-cross-make modules
+cross-make -j8 modules
