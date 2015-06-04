@@ -6,6 +6,6 @@ DESTDIR="../linux-image-$RELEASE"
 echo "Installing to $DESTDIR"
 
 mkdir -p $DESTDIR/boot
-cp arch/arm/boot/uImage $DESTDIR/boot/uImage-$RELEASE
+cp arch/arm/boot/uImage $DESTDIR/boot/uImage-$RELEASE || exit 1
 
-cross-make INSTALL_MOD_PATH=$DESTDIR modules_install
+cross-make INSTALL_MOD_PATH=$DESTDIR modules_install || exit 1
