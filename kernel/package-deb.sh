@@ -6,10 +6,12 @@ DESTDIR="./linux-image-$RELEASE"
 
 mkdir -p $DESTDIR/DEBIAN
 
+VERSION=$(date +"%Y.%m.%d-%H%M")
+
 read -p "Maintainer (your name): " MAINTAINER
 cat - <<EOF > $DESTDIR/DEBIAN/control
 Package: linux-image-$RELEASE
-Version: $RELEASE
+Version: $VERSION
 Section: kernel
 Priority: important
 Architecture: armel
