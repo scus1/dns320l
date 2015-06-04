@@ -76,11 +76,11 @@
 
 			pmx_sata0: pmx-sata0 {
 				marvell,pins = "mpp20";
-				marvell,function = "sata1";
+				marvell,function = "sata0";
 			};
 			pmx_sata1: pmx-sata1 {
 				marvell,pins = "mpp21";
-				marvell,function = "sata0";
+				marvell,function = "sata1";
 			};
 			pmx_led_red_right_hdd: pmx-led-red-right-hdd {
 			    marvell,pins = "mpp22";
