@@ -16,7 +16,7 @@ else
 fi
 
 echo "Applying configuration from config.d"
-find ../config.d -type f -print0 | sort -z | xargs -0 cat >> .config
+find ../config.d -type f -print0 | sort -z | xargs -0 awk 'FNR==1{print ""}1' >> .config
 cp ../dts/kirkwood-dns320l.dts arch/arm/boot/dts/
 
 cross-make menuconfig
