@@ -1,5 +1,26 @@
 # Linux on D-Link DNS-320L
 
+Install cross compiler toolchain
+--------------------------------
+
+* [Debian Jessie][deb-cross]
+    ```bash
+    $ cat - <<EOF | sudo tee /etc/apt/sources.list.d/crosstools.list 
+    deb http://emdebian.org/tools/debian/ jessie main
+    EOF
+    $ curl http://emdebian.org/tools/debian/emdebian-toolchain-archive.key | sudo apt-key add -
+    $ sudo dpkg --add-architecture armel
+    $ sudo apt-get update
+    $ sudo apt-get install crossbuild-essential-armel
+    ```
+
+* Ubuntu 14.04
+    ```bash
+    $ sudo apt-get install gcc-arm-linux-gnueabi
+    ```
+
+[deb-cross]: https://wiki.debian.org/CrossToolchains#Installation
+
 Building the kernel
 -------------------
 
