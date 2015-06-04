@@ -139,10 +139,6 @@ Tested with
     PEX 0: interface detected no Link.
     Net:   egiga0 [PRIME]
     Hit any key to stop autoboot:  1  0 
-    Marvell>> run usbboot
-    ## Error: "usbboot" not defined
-    Marvell>> bootusbrun 
-    Unknown command 'bootusbrun' - try 'help'
     Marvell>> run bootusb
     (Re)start USB...
     USB:   scanning bus for devices... 2 USB Device(s) found
