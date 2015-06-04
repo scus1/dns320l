@@ -13,3 +13,14 @@ $ sh ../configure.sh
 $ sh ../build.sh
 $ sh ../install.sh
 ```
+
+References
+----------
+* [Linux on the D-Link DNS-320L][boe]
+* [Debian @ Dlink DNS-327L: The guide][nec]
+* [Debian Linux on the D-Link DNS-320 & DNS-325 NAS][len]
+
+
+[nec]: http://ncrmnt.org/wp/2015/02/15/debian-dlink-dns-327l-the-guide/
+[boe]: http://www.aboehler.at/doku/doku.php/projects:dns320l
+[len]: http://jamie.lentin.co.uk/devices/dlink-dns325/
