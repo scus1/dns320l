@@ -29,17 +29,19 @@ Install cross compiler toolchain
 
 Building the kernel
 -------------------
-Get the kernel source from `kernel.org` or `github.com/torvalds/linux` and place them into the `kernel/` subdir and change to the source directory
+Get the kernel source from `kernel.org` or `github.com/torvalds/linux` and place them into the `kernel/` subdir and change to the source directory:
 ```bash
 $ cd kernel/
 $ wget https://www.kernel.org/pub/linux/kernel/vX.x/linux-X.XX.XX.tar.xz
 $ tar xzJ linux-X.XX.XX.tar.xz
 $ cd linux-X.XX.XX/
 ```
-You now have to configure the kernel. The following command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`, copies the `kirkwood-dns320l.dts` to the appropriate location and runs `cross-make menuconfig`. You may modify the `.config` as you like.
+You now have to configure the kernel:
 ```bash
 $ sh ../configure.sh
 ```
+This command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`,  runs `cross-make menuconfig` and copies the `kirkwood-dns320l.dts` to the appropriate location. You may modify the `.config` as you like.
+
 
 To create the kernel image run
 ```bash
