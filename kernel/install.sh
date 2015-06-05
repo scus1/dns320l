@@ -1,7 +1,7 @@
 
 alias cross-make='make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
 
-RELEASE=$(cross-make kernelrelease)
+RELEASE=$(cross-make -s kernelrelease)
 DESTDIR="./linux-image-$RELEASE" 
 echo "Installing to $DESTDIR"
 
