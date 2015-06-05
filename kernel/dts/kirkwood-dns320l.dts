@@ -1,9 +1,17 @@
 /dts-v1/;
 
-/* CREDITS
+/*
+ * Device Tree file for DLINK DNS-320L
  *
- * Device tree for D-Link DNS-320L
- * based on the work of Andreas Böhler:
+ * Copyright (C) 2015, Sunke Schlüters <sunke-dev@schlueters.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version
+ * 2 of the License, or (at your option) any later version.
+ *
+ *
+ * This file is based on the work of Andreas Böhler:
  *   - http://www.aboehler.at/doku/doku.php/projects:dns320l
  *   - http://www.aboehler.at/hg/linux-dns320l/file/ba7a60ad7687/linux-3.12/kirkwood-dns320l.dts
  */
