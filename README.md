@@ -61,7 +61,7 @@ $ sh ../package-deb.sh
 ```
 you may now create a Debian package (`linux-image-$KERNELRELEASE.deb`) to install the kernel and modules to your NAS. 
 
-**Attention**: The installation of the package does not flash the image. You have to do this on your own! You should, at first, try to boot your kernel using a USB Stick (see [Booting the NAS][http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#booting-the-nas]). Afterwards you may flash the kernel to NAND (see [Installing kernel to NAND][http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#installing-kernel-to-nand]).
+**Attention**: The installation of the package does not flash the image. You have to do this on your own! You should, at first, try to boot your kernel using a USB Stick (see [Booting the NAS](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#booting-the-nas)). Afterwards you may flash the kernel to NAND (see [Installing kernel to NAND](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#installing-kernel-to-nand)).
 
 MCU
 ------------
