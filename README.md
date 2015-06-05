@@ -25,7 +25,13 @@ Install cross compiler toolchain
     $ sudo apt-get install gcc-arm-linux-gnueabi
     ```
 
+You can now build the kernel using `cross-make` defined as follows:
+```bash
+$ alias cross-make='make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
+```
+
 [deb-cross]: https://wiki.debian.org/CrossToolchains#Installation
+
 
 Building the kernel
 -------------------
