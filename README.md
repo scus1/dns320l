@@ -1,6 +1,8 @@
 # Linux on D-Link DNS-320L
 
-Works sofar with
+**Warning:** I take no responsibility if you screw up your device following these instructions. Proceed at your own risk and use your own head. This will probably void warranty.
+
+I have tested these instructions successfully with:
 * linux-3.14.43
 * linux-4.0.4
 
@@ -27,17 +29,40 @@ Install cross compiler toolchain
 
 Building the kernel
 -------------------
-
+Get the kernel source from `kernel.org` or `github.com/torvalds/linux` and place them into the `kernel/` subdir:
 ```bash
 $ cd kernel/
-$ wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.XX.XX.tar.xz
+$ wget https://www.kernel.org/pub/linux/kernel/vX.x/linux-X.XX.XX.tar.xz
 $ tar xzJ linux-X.XX.XX.tar.xz
+```
+Change to the source directory
+```bash
 $ cd linux-X.XX.XX/
+```
+and create the `.config`. The following command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`, copies the `kirkwood-dns320l.dts` to the appropriate location and runs `cross-make menuconfig`. You may modify the `.config` as you like.
+```bash
 $ sh ../configure.sh
+```
+
+To create the kernel image run
+```bash
 $ sh ../build.sh
+```
+which executes `cross-make zImage`, `cross-make kirkwood-dns320l.dtb`, appends the device tree blob, builds the `uImage` and the modules.
+
+
+```bash
 $ sh ../install.sh
+```
+now creates the subdir `linux-image-$KERNELRELEASE` and installs the `uImage` and modules to it.
+
+With
+```bash
 $ sh ../package-deb.sh
 ```
+you may now create a Debian package (`linux-image-$KERNELRELEASE.deb`) to install the kernel and modules to your NAS. 
+
+**Attention**: The installation of the package does not flash the image. You have to do this on your own! You should, at first, try to boot your kernel using a USB Stick (see [Booting the NAS][http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#booting-the-nas]). Afterwards you may flash the kernel to NAND (see [Installing kernel to NAND][http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#installing-kernel-to-nand]).
 
 MCU
 ------------
