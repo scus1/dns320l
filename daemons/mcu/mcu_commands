@@ -1,0 +1,95 @@
+
+APREnableCmd        = "\xfa\x03\x02\x01\x00\x00\xfb"
+APRDisableCmd       = "\xfa\x03\x02\x00\x00\x00\xfb"
+APRStatusCmd        = "\xfa\x03\x02\x02\x00\x00\xfb"
+
+
+WOLStatusEnableCmd  = "\xfa\x03\x0a\x01\x00\x00\xfb"
+WOLStatusDisableCmd = "\xfa\x03\x0a\x00\x00\x00\xfb"
+WOLStatusGetCmd     = "\xfa\x03\x0a\x02\x00\x00\xfb"
+RDateAndTimeCmd     = "\xfa\x01\x08\x01\x01\x00\xfb"
+                    # Read RTC
+                    # 577       for(i=5;i<12;i++)
+                    # 578       {
+                    # 579         buf[i] = (buf[i] & 0x0f) + 10 * ((buf[i] & 0xf0) >> 4);
+                    # 580       }
+                    # 581 
+                    # 582       strTime.tm_year = (100 + (int)buf[11]);
+                    # 583       strTime.tm_mon = buf[10]-1;
+                    # 584       strTime.tm_mday = buf[9];
+                    # 585       strTime.tm_hour = buf[7];
+                    # 586       strTime.tm_min = buf[6];
+                    # 587       strTime.tm_sec = buf[5];
+                    # 588       strTime.tm_isdst = -1;
+                    # 589       rtcTime = mktime(&strTime);
+                    # 590       strcpy(timeStr, ctime(&rtcTime));
+                    # 591       // Retrieve system time
+                    # 592       sysTime = time(NULL);
+                    # 593       setTime.tv_sec = rtcTime;
+                    # 594       setTime.tv_usec = 0;
+
+import datetime
+import time
+def decodeDateTime(retval):
+    assert retval[0]   == StartByte
+    assert retval[-1]  == StopByte
+    assert len(retval) == 13
+
+    f = lambda a: (a & 0x0f) + 10 * ((a & 0xf0) >> 4)
+
+    time_struct     = [ord(char) for char in reversed(retval[5:11])]
+    time_struct     = map(f, time_struct)
+    time_struct[0] += 2000
+    #time_struct[1] -= 1
+
+    return time.struct_time(time_struct + [0,0,-1])
+
+def encodeDateTime(ts):
+    assert isinstance(ts, time.struct_time)
+
+    f = lambda a:  ((a / 10) << 4) + (a % 10);
+
+    time_struct     = list(ts)[0:6]
+    time_struct[0] -= 2000
+    #time_struct[1] += 1
+    time_struct     = map(f, time_struct)
+
+    cmd       = list(WDateAndTimeCmd)
+    cmd[5:11] = [chr(a) for a in reversed(time_struct)]
+    return "".join(cmd)
+
+
+WAlarmEnableCmd     = "\xfa\x01\x10\x02\x01\x01\xfb"
+WAlarmDisableCmd    = "\xfa\x01\x10\x02\x01\x00\xfb"
+RAlarmMonthCmd      = "\xfa\x01\x0a\x01\x01\x00\xfb"
+RAlarmDateCmd       = "\xfa\x01\x0b\x01\x01\x00\xfb"
+RAlarmHourCmd       = "\xfa\x01\x0c\x01\x01\x00\xfb"
+RAlarmSecondCmd     = "\xfa\x01\x0e\x01\x01\x00\xfb"
+RAlarmMinuteCmd     = "\xfa\x01\x0d\x01\x01\x00\xfb"
+RAlarmFlagCmd       = "\xfa\x01\x0f\x01\x01\x00\xfb"
+WAlarmMonthCmd      = "\xfa\x01\x0a\x02\x01\x00\xfb"
+WAlarmDateCmd       = "\xfa\x01\x0b\x02\x01\x00\xfb"
+WAlarmHourCmd       = "\xfa\x01\x0c\x02\x01\x00\xfb"
+WAlarmMinuteCmd     = "\xfa\x01\x0d\x02\x01\x00\xfb"
+WAlarmSecondCmd     = "\xfa\x01\x0e\x02\x01\x00\xfb"
+WDateAndTimeCmd     = "\xfa\x01\x08\x02\x07\x17\x06\x21\x02\x10\x09\x13\xfb"
+                    # Write RTC
+                    # 543     for(i=0;i<13;i++)
+                    # 544     {
+                    # 545       cmdBuf[i] = WDateAndTimeCmd[i];
+                    # 546     }
+                    # 547     sysTime = time(NULL);
+                    # 548     strSetTime = localtime(&sysTime);
+                    # 549     // Put the current local time into the command buffer
+                    # 550     cmdBuf[5] = (char)strSetTime->tm_sec;
+                    # 551     cmdBuf[6] = (char)strSetTime->tm_min;
+                    # 552     cmdBuf[7] = (char)strSetTime->tm_hour;
+                    # 553     cmdBuf[8] = (char)strSetTime->tm_wday;
+                    # 554     cmdBuf[9] = (char)strSetTime->tm_mday;
+                    # 555     cmdBuf[10] = (char)(strSetTime->tm_mon + 1);
+                    # 556     cmdBuf[11] = (char)(strSetTime->tm_year - 100);
+                    # 557     // And modify the values so that the MCU understands them...
+                    # 558     for(i=5;i<12;i++)
+                    # 559     {
+                    # 560       cmdBuf[i] = ((cmdBuf[i] / 10) << 4) + (cmdBuf[i] % 10);
+                    # 561     }

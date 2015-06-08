@@ -59,20 +59,20 @@
 		pinctrl-names = "default";
 
 		blue-usb {
-			label = "dns320l:blue:usb";
+			label = "usb_blue";
 			gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>; 
 		};
-		orange-r_hdd {
-			label = "dns320l:orange:r_hdd";
-			gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>; 
+		orange-usb {
+			label = "usb_orange";
+			gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>; 
 		};
 		orange-l_hdd {
-			label = "dns320l:orange:l_hdd";
+			label = "hdd1_orange";
 			gpios = <&gpio0 23 GPIO_ACTIVE_HIGH>; 
 		};
-		orange-usb {
-			label = "dns320l:orange:usb";
-			gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>; 
+		orange-r_hdd {
+			label = "hdd2_orange";
+			gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>; 
 		};
 	};
 

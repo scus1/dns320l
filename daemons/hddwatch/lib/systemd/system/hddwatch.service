@@ -1,0 +1,7 @@
+
+
+[Unit]
+Description=Watch HDDs for reallocated sectors 
+
+[Service]
+ExecStart=/usr/bin/hddwatch
