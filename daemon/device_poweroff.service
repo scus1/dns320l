@@ -1,0 +1,11 @@
+
+[Unit]
+Description=Poweroff the device after shutdown
+Before=shutdown.target halt.target
+
+[Service]
+type=oneshot
+ExecStart=/usr/bin/mcu_communicate DEVICE_POWEROFF
+
+[Install]
+WantedBy=poweroff.target halt.target

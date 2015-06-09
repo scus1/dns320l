@@ -1,0 +1,12 @@
+
+[Unit]
+Description=Tell MCU that the device is ready
+Requires=fancontrol.service hddwatch.service
+After=fancontrol.service hddwatch.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mcu_communicate DEVICE_READY
+
+[Install]
+WantedBy=multi-user.target
