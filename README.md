@@ -30,6 +30,8 @@ You can now build the kernel using `cross-make` defined as follows:
 $ alias cross-make='make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
 ```
 
+For the lazy people out there, a Makefile is included (see next section).
+
 [deb-cross]: https://wiki.debian.org/CrossToolchains#Installation
 
 
@@ -46,14 +48,14 @@ You now have to configure the kernel:
 ```bash
 $ make config
 ```
-This command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`,  runs `cross-make menuconfig` and copies the `kirkwood-dns320l.dts` to the appropriate location. You may modify the `.config` as you like.
+This command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`,  copies the `kirkwood-dns320l.dts` to the appropriate location and finally lets you modify the configuration using `menuconfig`. You may modify the `.config` as you like.
 
 
 To create the kernel image run
 ```bash
 $ make build
 ```
-which builds the kernel, appends the device tree blob, builds the `uImage` and the modules.
+which builds the kernel, appends the device tree blob and builds the `uImage` and modules.
 
 
 Finally you may want to run
@@ -67,12 +69,12 @@ $ make deb
 which creates a Debian package containing the uImage and modules.
 
 
-**Remark:** The following make commands try to find the latest kernel sources via `ls -1 -d */ | sort -r | head -n 1`. If you want to build another kernel version, you have to provide the path via `SRC_DIR`, i.e. `make SRC_DIR=linux-X.XX.XX/ config|build|install|deb`.
+**Remark:** These make targets try to find the latest kernel sources via `ls -1 -d */ | sort -r | head -n 1`. If you want to build another kernel version, you have to provide the path via `SRC_DIR`, i.e. `make SRC_DIR=linux-X.XX.XX/ config|build|install|deb`.
 
 **Attention**: The installation of the package does not flash the image. You have to do this on your own! You should, at first, try to boot your kernel using a USB Stick (see [Booting the NAS](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#booting-the-nas)). Afterwards you may flash the kernel to NAND (see [Installing kernel to NAND](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#installing-kernel-to-nand)).
 
-MCU
-------------
+MCU and tools
+-------------
 TODO
 
 
