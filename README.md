@@ -69,7 +69,7 @@ $ make deb
 which creates a Debian package containing the uImage and modules.
 
 
-**Remark:** The following make commands try to find the latest kernel sources via `ls -1 -d */ | sort -r | head -n 1`. If you want to build another kernel version, you have to provide the path via `SRC_DIR`, i.e. `make SRC_DIR=linux-X.XX.XX/ config|build|install|deb`.
+**Remark:** These make targets try to find the latest kernel sources via `ls -1 -d */ | sort -r | head -n 1`. If you want to build another kernel version, you have to provide the path via `SRC_DIR`, i.e. `make SRC_DIR=linux-X.XX.XX/ config|build|install|deb`.
 
 **Attention**: The installation of the package does not flash the image. You have to do this on your own! You should, at first, try to boot your kernel using a USB Stick (see [Booting the NAS](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#booting-the-nas)). Afterwards you may flash the kernel to NAND (see [Installing kernel to NAND](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#installing-kernel-to-nand)).
 
