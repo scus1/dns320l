@@ -1,2 +1,6 @@
 kernel/linux-*
+kernel/tmp/*
+
+daemon/tmp/*
+
 *.deb

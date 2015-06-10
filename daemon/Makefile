@@ -1,43 +1,69 @@
 
-prefix   = /usr
-DESTDIR  = ./DESTDIR
-INSTALL  = install
+DESTDIR = /
 
-bin_dir     = $(DESTDIR)/bin
-etc_dir     = $(DESTDIR)/etc
-systemd_dir = $(DESTDIR)/lib/systemd/system
+VERSION := $(shell git show -s --format=%h)
+ifneq "$(shell git diff --shortstat 2> /dev/null | tail -n1)" ""
+VERSION := $(VERSION)-dirty
+endif
 
-.PHONY: all help install install_tools install_systemd_config
-
-all:
-	@echo "Nothing to build"
+.PHONY: help install install_tools install_systemd_config deb
 
 help:
-	@echo 'Available targets:'
+	@echo 'Targets:'
 	@echo '  install                - Install scripts and systemd service files to $$DESTDIR'
 	@echo '  install_tools          - Install scripts to $$DESTDIR'
 	@echo '  install_systemd_config - Install systemd service files to $$DESTDIR'
+	@echo '  deb                    - Build Debian package'
+	@echo '                           (this target creates a temporary directory "tmp" to create'
+	@echo '                           the package)'
 	@echo ' '
 	@echo 'The default value for $$DESTDIR is $(DESTDIR)'
 
 install: install_tools install_systemd_config
 
 install_tools:
-	$(INSTALL) -d $(bin_dir)
-	$(INSTALL) -m 0755 mcu/mcu_communicate.py   $(bin_dir)/mcu_communicate
-	$(INSTALL) -m 0755 hddwatch/hddwatch.sh     $(bin_dir)/hddwatch
-	$(INSTALL) -m 0755 fancontrol/fancontrol.sh $(bin_dir)/fancontrol
-	$(INSTALL) -d $(etc_dir)/defaults
-	$(INSTALL) fancontrol/fancontrol_defaults   $(etc_dir)/defaults/fancontrol
+	install -d $(DESTDIR)/bin
+	install -m 0755 mcu/mcu_communicate.py   $(DESTDIR)/bin/mcu_communicate
+	install -m 0755 hddwatch/hddwatch.sh     $(DESTDIR)/bin/hddwatch
+	install -m 0755 fancontrol/fancontrol.sh $(DESTDIR)/bin/fancontrol
+	install -d $(DESTDIR)/etc/defaults
+	install fancontrol/fancontrol_defaults   $(DESTDIR)/etc/defaults/fancontrol
 
 install_systemd_config:
-	$(INSTALL) -d $(systemd_dir)
-	$(INSTALL) hddwatch/hddwatch.service     $(systemd_dir)
-	$(INSTALL) fancontrol/fancontrol.service $(systemd_dir)
-	$(INSTALL) device_failure.service        $(systemd_dir)
-	$(INSTALL) device_ready.service          $(systemd_dir)
-	$(INSTALL) device_poweroff.service       $(systemd_dir)
+	install -d $(DESTDIR)/lib/systemd/system
+	install hddwatch/hddwatch.service     $(DESTDIR)/lib/systemd/system
+	install fancontrol/fancontrol.service $(DESTDIR)/lib/systemd/system
+	install device_failure.service        $(DESTDIR)/lib/systemd/system
+	install device_ready.service          $(DESTDIR)/lib/systemd/system
+	install device_poweroff.service       $(DESTDIR)/lib/systemd/system
 
-deb: DESTDIR=./DEST
+deb: TMP_DIR := $(abspath ./tmp/)
 deb:
-	make DESTDIR=$(DESTDIR) install
+	$(MAKE) -s DESTDIR=$(TMP_DIR) install
+	$(MAKE) -s DESTDIR=$(TMP_DIR) deb_control
+	dpkg -b $(TMP_DIR) dns320l-tools.deb
+
+deb_control: SIZE = $(shell du -sk $(DESTDIR) | cut -f1)
+deb_control:
+ifeq "$(wildcard $(DESTDIR)/DEBIAN/control)" ""
+	@install -d $(DESTDIR)/DEBIAN
+	@echo 'Package: dns320l-tools'                 >  $(DESTDIR)/DEBIAN/control
+	@echo 'Version: $(VERSION)'                    >> $(DESTDIR)/DEBIAN/control
+	@echo 'Section: misc'                          >> $(DESTDIR)/DEBIAN/control
+	@echo 'Priority: important'                    >> $(DESTDIR)/DEBIAN/control
+	@echo 'Architecture: armel'                    >> $(DESTDIR)/DEBIAN/control
+	@echo 'Installed-Size: $(SIZE)'                >> $(DESTDIR)/DEBIAN/control
+	@echo 'Maintainer: $(USER)'                    >> $(DESTDIR)/DEBIAN/control
+	@echo 'Depends: systemd'                       >> $(DESTDIR)/DEBIAN/control
+	@echo 'Description: Tools for D-Link DNS-320L' >> $(DESTDIR)/DEBIAN/control
+
+	editor $(DESTDIR)/DEBIAN/control
+else
+	@echo 'Found control file, just updating version and size field'
+	@sed -e 's/^Version: .*/Version: $(VERSION)/g' -i $(DESTDIR)/DEBIAN/control
+	@sed -e 's/^Installed-Size:: .*/Installed-Size: $(SIZE)/g' -i $(DESTDIR)/DEBIAN/control
+endif
+
+
+
+
