@@ -3,18 +3,19 @@ ifndef SRC_DIR
 $(error SRC_DIR not set)
 endif
 
-.PHONY: config build install
+.PHONY: config build install deb
 
 ARCH           = arm
 CROSS_COMPILE  = arm-linux-gnueabi-
 CROSS_MAKE    := $(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
 
 RELEASE        = $(shell $(CROSS_MAKE) -C $(SRC_DIR) -s kernelrelease)
+
+SRC_DIR       := $(abspath $(SRC_DIR))
+
 DESTDIR        = ./linux-image-$(RELEASE)
 DESTDIR       := $(abspath $(DESTDIR))
 
-
-INSTALL = install
 
 config:
 ifdef CONFIG
@@ -39,6 +40,25 @@ build:
 	$(CROSS_MAKE) -C $(SRC_DIR) -j8 modules
 
 install:
-	$(INSTALL) -d $(DESTDIR)/boot
-	$(INSTALL) $(SRC_DIR)/arch/arm/boot/uImage $(DESTDIR)/boot/uImage-$(RELEASE)
+	install -d $(DESTDIR)/boot
+	install $(SRC_DIR)/arch/arm/boot/uImage $(DESTDIR)/boot/uImage-$(RELEASE)
 	$(CROSS_MAKE) -C $(SRC_DIR) INSTALL_MOD_PATH=$(DESTDIR) modules_install
+
+deb: DESTDIR = ./debian_packages/linux-image-$(RELEASE)
+deb: VERSION = $(shell date +"%Y.%m.%d-%H%M")
+deb: SIZE    = $(shell "du -sk $(DESTDIR) | awk '{print $1}'")
+
+deb:
+	install -d $(DESTDIR)/DEBIAN
+	@echo 'Package: linux-image-$(RELEASE)'               >  $(DESTDIR)/DEBIAN/control
+	@echo 'Version: $(VERSION)'                           >> $(DESTDIR)/DEBIAN/control
+	@echo 'Section: kernel'                               >> $(DESTDIR)/DEBIAN/control
+	@echo 'Priority: important'                           >> $(DESTDIR)/DEBIAN/control
+	@echo 'Architecture: armel'                           >> $(DESTDIR)/DEBIAN/control
+	@echo 'Installed-Size: $(SIZE)'                       >> $(DESTDIR)/DEBIAN/control
+	@echo 'Maintainer: $(USER)'                           >> $(DESTDIR)/DEBIAN/control
+	@echo 'Description: Linux kernel for D-Link DNS-320L' >> $(DESTDIR)/DEBIAN/control
+
+	editor $(DESTDIR)/DEBIAN/control
+
+	dpkg -b $(DESTDIR)
