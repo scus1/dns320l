@@ -1,7 +1,0 @@
-[Unit]
-Description=Watch HDDs for reallocated sectors 
-OnFailure=device_failure.service
-
-[Service]
-Restart=always
-ExecStart=/usr/bin/hddwatch

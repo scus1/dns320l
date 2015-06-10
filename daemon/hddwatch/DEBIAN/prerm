@@ -1,5 +1,0 @@
-#!/bin/sh
-
-systemctl disable hddwatch.timer
-
-exit 0

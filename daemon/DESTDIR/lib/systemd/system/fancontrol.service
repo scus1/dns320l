@@ -1,7 +1,0 @@
-[Unit]
-Description=Fan controller 
-OnFailure=device_failure.service
-
-[Service]
-Restart=always
-ExecStart=/usr/bin/fancontrol

@@ -1,7 +1,0 @@
-
-[Unit]
-Description=Let the power led blink, when the fancontrol fails
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/mcu_communicate POWER_LED_FLASH

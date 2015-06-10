@@ -37,3 +37,7 @@ install_systemd_config:
 	$(INSTALL) device_failure.service        $(systemd_dir)
 	$(INSTALL) device_ready.service          $(systemd_dir)
 	$(INSTALL) device_poweroff.service       $(systemd_dir)
+
+deb: DESTDIR=./DEST
+deb:
+	make DESTDIR=$(DESTDIR) install

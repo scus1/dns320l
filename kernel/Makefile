@@ -7,10 +7,11 @@ endif
 
 ARCH           = arm
 CROSS_COMPILE  = arm-linux-gnueabi-
-MAKE          := $(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
+CROSS_MAKE    := $(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
 
-RELEASE        = $(shell $(MAKE) -C $(SRC_DIR) -s kernelrelease)
-DESTDIR        = $(shell pwd)/linux-image-$(RELEASE)
+RELEASE        = $(shell $(CROSS_MAKE) -C $(SRC_DIR) -s kernelrelease)
+DESTDIR        = ./linux-image-$(RELEASE)
+DESTDIR       := $(abspath $(DESTDIR))
 
 
 INSTALL = install
@@ -28,16 +29,16 @@ endif
 	find ./config.d -type f -print0 | sort -z | xargs -0 awk 'FNR==1{print ""}1' >> $(SRC_DIR)/.config
 	cp ./dts/kirkwood-dns320l.dts $(SRC_DIR)/arch/arm/boot/dts/
 
-	$(MAKE) -C $(SRC_DIR) menuconfig
+	$(CROSS_MAKE) -C $(SRC_DIR) menuconfig
 
 
 build:
-	$(MAKE) -C $(SRC_DIR) -j8 zImage kirkwood-dns320l.dtb
+	$(CROSS_MAKE) -C $(SRC_DIR) -j8 zImage kirkwood-dns320l.dtb
 	cat $(SRC_DIR)/arch/arm/boot/dts/kirkwood-dns320l.dtb >> $(SRC_DIR)/arch/arm/boot/zImage
-	$(MAKE) -C $(SRC_DIR) LOADADDR=0x00008000 uImage
-	$(MAKE) -C $(SRC_DIR) -j8 modules
+	$(CROSS_MAKE) -C $(SRC_DIR) LOADADDR=0x00008000 uImage
+	$(CROSS_MAKE) -C $(SRC_DIR) -j8 modules
 
 install:
 	$(INSTALL) -d $(DESTDIR)/boot
 	$(INSTALL) $(SRC_DIR)/arch/arm/boot/uImage $(DESTDIR)/boot/uImage-$(RELEASE)
-	$(MAKE) -C $(SRC_DIR) INSTALL_MOD_PATH=$(DESTDIR) modules_install
+	$(CROSS_MAKE) -C $(SRC_DIR) INSTALL_MOD_PATH=$(DESTDIR) modules_install
