@@ -13,9 +13,6 @@ RELEASE        = $(shell $(CROSS_MAKE) -C $(SRC_DIR) -s kernelrelease)
 DESTDIR        = ./linux-image-$(RELEASE)
 DESTDIR       := $(abspath $(DESTDIR))
 
-
-INSTALL = install
-
 config:
 ifdef CONFIG
 	cp $(CONFIG) $(SRC_DIR)/.config
