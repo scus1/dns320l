@@ -35,37 +35,39 @@ $ alias cross-make='make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
 
 Building the kernel
 -------------------
-Get the kernel source from `kernel.org` or `github.com/torvalds/linux` and place them into the `kernel/` subdir and change to the source directory:
+Get the kernel source from `kernel.org` or `github.com/torvalds/linux` and place them into the `kernel/` subdir:
 ```bash
 $ cd kernel/
 $ wget https://www.kernel.org/pub/linux/kernel/vX.x/linux-X.XX.XX.tar.xz
 $ tar xzJ linux-X.XX.XX.tar.xz
-$ cd linux-X.XX.XX/
 ```
+
 You now have to configure the kernel:
 ```bash
-$ sh ../configure.sh
+$ make config
 ```
 This command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`,  runs `cross-make menuconfig` and copies the `kirkwood-dns320l.dts` to the appropriate location. You may modify the `.config` as you like.
 
 
 To create the kernel image run
 ```bash
-$ sh ../build.sh
+$ make build
 ```
-which executes `cross-make zImage`, `cross-make kirkwood-dns320l.dtb`, appends the device tree blob, builds the `uImage` and the modules.
+which builds the kernel, appends the device tree blob, builds the `uImage` and the modules.
 
 
+Finally you may want to run
 ```bash
-$ sh ../install.sh
+$ make DESTDIR=<root_of_your_nas> install
 ```
-now creates the subdir `linux-image-$KERNELRELEASE` and installs the `uImage` and modules to it.
-
-With
+which installs the uImage and modules into the appropriate directories under $DESTDIR, or
 ```bash
-$ sh ../package-deb.sh
+$ make deb
 ```
-you may now create a Debian package (`linux-image-$KERNELRELEASE.deb`) to install the kernel and modules to your NAS. 
+which creates a Debian package containing the uImage and modules.
+
+
+**Remark:** The following make commands try to find the latest kernel sources via `ls -1 -d */ | sort -r | head -n 1`. If you want to build another kernel version, you have to provide the path via `SRC_DIR`, i.e. `make SRC_DIR=linux-X.XX.XX/ config|build|install|deb`.
 
 **Attention**: The installation of the package does not flash the image. You have to do this on your own! You should, at first, try to boot your kernel using a USB Stick (see [Booting the NAS](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#booting-the-nas)). Afterwards you may flash the kernel to NAND (see [Installing kernel to NAND](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#installing-kernel-to-nand)).
 
