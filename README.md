@@ -73,8 +73,8 @@ which creates a Debian package containing the uImage and modules.
 
 **Attention**: The installation of the package does not flash the image. You have to do this on your own! You should, at first, try to boot your kernel using a USB Stick (see [Booting the NAS](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#booting-the-nas)). Afterwards you may flash the kernel to NAND (see [Installing kernel to NAND](http://jamie.lentin.co.uk/devices/dlink-dns325/keeping-original-firmware/#installing-kernel-to-nand)).
 
-MCU
-------------
+MCU and tools
+-------------
 TODO
 
 
