@@ -30,6 +30,8 @@ You can now build the kernel using `cross-make` defined as follows:
 $ alias cross-make='make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
 ```
 
+For the lazy people out there, a Makefile is included (see next section).
+
 [deb-cross]: https://wiki.debian.org/CrossToolchains#Installation
 
 
@@ -46,14 +48,14 @@ You now have to configure the kernel:
 ```bash
 $ make config
 ```
-This command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`,  runs `cross-make menuconfig` and copies the `kirkwood-dns320l.dts` to the appropriate location. You may modify the `.config` as you like.
+This command takes `kirkwood_defconfig` respectively `mvebu_v5_defconfig`, adds the options defined in `config.d/*`,  copies the `kirkwood-dns320l.dts` to the appropriate location and finally lets you modify the configuration using `menuconfig`. You may modify the `.config` as you like.
 
 
 To create the kernel image run
 ```bash
 $ make build
 ```
-which builds the kernel, appends the device tree blob, builds the `uImage` and the modules.
+which builds the kernel, appends the device tree blob and builds the `uImage` and modules.
 
 
 Finally you may want to run
