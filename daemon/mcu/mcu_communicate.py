@@ -5,6 +5,8 @@ from __future__ import print_function
 import sys
 import serial
 import argparse
+import fcntl
+import time
 
 def warning(*objs):
     print(*objs, file = sys.stderr)
@@ -71,28 +73,45 @@ COMMANDS = {
     'POWER_LED_FLASH' : ("\xfa\x03\x06\x02\x00\x01\xfb", check_ack)
 }
 
+UART = '/dev/ttyS1'
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('command', choices = COMMANDS.keys())
     args = parser.parse_args(sys.argv[1:])
 
-    with serial.Serial("/dev/ttyS1", 115200, 8, "N", 1, 1) as serial_port:
-        cmd_bytes, cmd_func = COMMANDS[args.command]
-        serial_port.write( cmd_bytes )
-        serial_port.flush()
-
-        retval = ''
+    with open(UART) as uart_fh:
         while True:
-            buf  = serial_port.read(7)
-            if len(buf) == 0:
+            try:
+                fcntl.flock(uart_fh, fcntl.LOCK_EX)
                 break
+            except IOError as e:
+                # raise on unrelated IOErrors
+                if ex.errno != errno.EAGAIN:
+                    raise
+            else:
+                time.sleep(1)
 
-            retval += buf
+        with serial.Serial(UART, 115200, 8, "N", 1, 1) as serial_port:
+            cmd_bytes, cmd_func = COMMANDS[args.command]
+            serial_port.write( cmd_bytes )
+            serial_port.flush()
 
-        try:
-            print(cmd_func(retval))
-            sys.exit(0)
-        except Exception as e:
-            warning(e)
-            sys.exit(1)
+            retval = ''
+            while True:
+                buf  = serial_port.read(7)
+                if len(buf) == 0:
+                    break
+
+                retval += buf
+
+            try:
+                print(cmd_func(retval))
+                sys.exit(0)
+            except Exception as e:
+                warning(e)
+                sys.exit(1)
+
+        fcntl.flock(uart_fh, fcntl.LOCK_UN)
+
 

@@ -22,10 +22,10 @@ help:
 install: install_tools install_systemd_config
 
 install_tools:
-	install -d $(DESTDIR)/bin
-	install -m 0755 mcu/mcu_communicate.py   $(DESTDIR)/bin/mcu_communicate
-	install -m 0755 hddwatch/hddwatch.sh     $(DESTDIR)/bin/hddwatch
-	install -m 0755 fancontrol/fancontrol.sh $(DESTDIR)/bin/fancontrol
+	install -d $(DESTDIR)/usr/bin
+	install -m 0755 mcu/mcu_communicate.py   $(DESTDIR)/usr/bin/mcu_communicate
+	install -m 0755 hddwatch/hddwatch.sh     $(DESTDIR)/usr/bin/hddwatch
+	install -m 0755 fancontrol/fancontrol.sh $(DESTDIR)/usr/bin/fancontrol
 	install -d $(DESTDIR)/etc/defaults
 	install fancontrol/fancontrol_defaults   $(DESTDIR)/etc/defaults/fancontrol
 
@@ -45,8 +45,8 @@ deb:
 
 deb_control: SIZE = $(shell du -sk $(DESTDIR) | cut -f1)
 deb_control:
-ifeq "$(wildcard $(DESTDIR)/DEBIAN/control)" ""
 	@install -d $(DESTDIR)/DEBIAN
+ifeq "$(wildcard $(DESTDIR)/DEBIAN/control)" ""
 	@echo 'Package: dns320l-tools'                 >  $(DESTDIR)/DEBIAN/control
 	@echo 'Version: $(VERSION)'                    >> $(DESTDIR)/DEBIAN/control
 	@echo 'Section: misc'                          >> $(DESTDIR)/DEBIAN/control
@@ -64,6 +64,18 @@ else
 	@sed -e 's/^Installed-Size:: .*/Installed-Size: $(SIZE)/g' -i $(DESTDIR)/DEBIAN/control
 endif
 
+ifeq "$(wildcard $(DESTDIR)/DEBIAN/postinst)" ""
+	@echo 'systemctl enable device_ready.service'    >  $(DESTDIR)/DEBIAN/postinst
+	@echo 'systemctl enable device_poweroff.service' >> $(DESTDIR)/DEBIAN/postinst
+	@chmod 755 $(DESTDIR)/DEBIAN/postinst
+endif
 
+ifeq "$(wildcard $(DESTDIR)/DEBIAN/prerm)" ""
+	@echo 'systemctl disable device_ready.service'    >  $(DESTDIR)/DEBIAN/prerm
+	@echo 'systemctl disable device_poweroff.service' >> $(DESTDIR)/DEBIAN/prerm
+	@chmod 755 $(DESTDIR)/DEBIAN/prerm
+endif
 
-
+ifeq "$(wildcard $(DESTDIR)/DEBIAN/conffiles)" ""
+	@echo '/etc/defaults/fancontrol'    >  $(DESTDIR)/DEBIAN/conffiles
+endif

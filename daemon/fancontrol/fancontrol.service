@@ -3,5 +3,5 @@ Description=Fan controller
 OnFailure=device_failure.service
 
 [Service]
-Restart=always
+Restart=on-failure
 ExecStart=/usr/bin/fancontrol
