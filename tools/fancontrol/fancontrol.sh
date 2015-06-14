@@ -1,6 +1,17 @@
 #!/bin/sh
 
-. /etc/defaults/fancontrol
+if [ -e /etc/defaults/fancontrol ]; then
+    . /etc/defaults/fancontrol
+else
+    >&2 echo "No config found, taking default values"
+
+    LOW_THRESHOLD=30
+    HIGH_THRESHOLD=50
+    HYSTERESIS=3
+
+    DEBUG=true
+fi
+    
 
 CUR_FAN_SPEED=FAN_STOP
 
@@ -10,7 +21,7 @@ while true; do
         MAX_TEMP=99
         >&2 echo "Could not determine CPU temperature, assuming worst case"
     else
-        echo "CPU temperature is ${MAX_TEMP}"
+        $DEBUG && echo "CPU temperature is ${MAX_TEMP}"
     fi
 
     for HDD in 1 2; do
@@ -21,7 +32,7 @@ while true; do
             MAX_TEMP=99
             >&2 echo "Could not determine HDD ${HDD} temperature, assuming worst case"
         else
-            echo "HDD ${HDD} temperature is ${HDD_TEMP}"
+            $DEBUG && echo "HDD ${HDD} temperature is ${HDD_TEMP}"
             if [ "$HDD_TEMP" -gt "$MAX_TEMP" ]; then
                 MAX_TEMP=$HDD_TEMP
             fi
