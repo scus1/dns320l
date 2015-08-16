@@ -80,38 +80,33 @@ if __name__ == "__main__":
     parser.add_argument('command', choices = COMMANDS.keys())
     args = parser.parse_args(sys.argv[1:])
 
-    with open(UART) as uart_fh:
+    with serial.Serial(UART, 115200, 8, "N", 1, 1) as serial_port:
         while True:
             try:
-                fcntl.flock(uart_fh, fcntl.LOCK_EX)
-                break
-            except IOError as e:
-                # raise on unrelated IOErrors
-                if ex.errno != errno.EAGAIN:
-                    raise
-            else:
+                fcntl.flock(serial_port.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except IOError:
+                warning('Serial port is busy, waiting 1 second')
                 time.sleep(1)
+            else:
+                break
 
-        with serial.Serial(UART, 115200, 8, "N", 1, 1) as serial_port:
-            cmd_bytes, cmd_func = COMMANDS[args.command]
-            serial_port.write( cmd_bytes )
-            serial_port.flush()
+        cmd_bytes, cmd_func = COMMANDS[args.command]
+        serial_port.write( cmd_bytes )
+        serial_port.flush()
 
-            retval = ''
-            while True:
-                buf  = serial_port.read(7)
-                if len(buf) == 0:
-                    break
+        retval = ''
+        while True:
+            buf  = serial_port.read(7)
+            if len(buf) == 0:
+                break
 
-                retval += buf
+            retval += buf
 
-            try:
-                print(cmd_func(retval))
-                sys.exit(0)
-            except Exception as e:
-                warning(e)
-                sys.exit(1)
-
-        fcntl.flock(uart_fh, fcntl.LOCK_UN)
+        try:
+            print(cmd_func(retval))
+            sys.exit(0)
+        except Exception as e:
+            warning(e)
+            sys.exit(1)
 
 
