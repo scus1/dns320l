@@ -1,7 +1,7 @@
 
 DESTDIR = /
 
-VERSION := $(shell git show -s --format=%h)
+VERSION := $(shell git show -s --format=%ct)
 ifneq "$(shell git diff --shortstat 2> /dev/null | tail -n1)" ""
 VERSION := $(VERSION)-dirty
 endif
