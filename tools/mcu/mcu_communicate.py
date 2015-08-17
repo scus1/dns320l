@@ -77,6 +77,7 @@ COMMANDS = {
 UART = '/dev/ttyS1'
 LOCK_TIMEOUT = datetime.timedelta(seconds = 30)
 RESPONSE_TIMEOUT = datetime.timedelta(seconds = 10)
+RETRIES = 5
 
 
 if __name__ == "__main__":
@@ -92,29 +93,38 @@ if __name__ == "__main__":
             except IOError:
                 continue
             else:
+                # Got the LOCK
+                time.sleep(0.1)
                 break
         else:
             warning('Serial port is busy. Waited {}.'.format(LOCK_TIMEOUT))
             sys.exit(1)
 
         cmd_bytes, cmd_func = COMMANDS[args.command]
-        serial_port.write( cmd_bytes )
-        serial_port.flush()
+        for attempt in range(RETRIES):
+            try:
+                serial_port.write( cmd_bytes )
+                serial_port.flush()
 
-        timestamp = datetime.datetime.now()
-        buf = ''
-        while datetime.datetime.now() < timestamp + RESPONSE_TIMEOUT:
-            buf += serial_port.read()
+                timestamp = datetime.datetime.now()
+                buf = ''
+                while datetime.datetime.now() < timestamp + RESPONSE_TIMEOUT:
+                    buf += serial_port.read()
 
-            if len(buf) >= 7 and buf[-7:] == ACK:
-                try:
-                    print(cmd_func(buf[:-7]))
-                    break
-                except MCUException as e:
-                    warning(e)
-                    sys.exit(1)
+                    if len(buf) >= 7 and buf[-7:] == ACK:
+                        print(cmd_func(buf[:-7]))
+                        break
+                else:
+                    raise MCUException('MCU did not respond with ACK. Waited {} and only got {}.'.format(RESPONSE_TIMEOUT, buf.encode('hex')))
+            except MCUException as e:
+                warning(e)
+                warning('I will try again...')
+                time.sleep(0.1)
+                continue
+            else:
+                break
         else:
-            warning('MCU did not respond with ACK. Waited {} and only got {}.'.format(RESPONSE_TIMEOUT, buf.encode('hex')))
+            warning('Tried {} times. Aboring...'.format(RETRIES))
             sys.exit(1)
-
+            
         sys.exit(0)
