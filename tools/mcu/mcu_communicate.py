@@ -21,7 +21,7 @@ class MCUException(Exception):
 def empty_answer(retval):
     if not len(retval) == 0:
         raise MCUException('Expected empty answer, got {}'.format(retval.encode('hex')))
-    return
+    return ""
 
 THERMAL_TABLE   = (
     116, 115, 114, 113, 112, 111, 110, 109,
