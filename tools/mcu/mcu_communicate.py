@@ -6,7 +6,7 @@ import sys
 import serial
 import argparse
 import fcntl
-import time
+import time, datetime
 
 def warning(*objs):
     print(*objs, file = sys.stderr)
@@ -18,11 +18,10 @@ ACK             = "\xfa\x30\x00\x00\x00\x00\xfb"
 class MCUException(Exception):
     pass
 
-def check_ack(retval):
-    if not retval[-7:] == ACK:
-        raise MCUException('MCU did not respond with ACK')
-    else:
-        return retval[:-7]
+def empty_answer(retval):
+    if not len(retval) == 0:
+        raise MCUException('Expected empty answer, got {}'.format(retval.encode('hex')))
+    return
 
 THERMAL_TABLE   = (
     116, 115, 114, 113, 112, 111, 110, 109,
@@ -54,75 +53,68 @@ THERMAL_TABLE   = (
 )
 
 def calculate_cpu_temp(retval):
-    retval = check_ack(retval)
-
-    if not retval[0]  == START_BYTE \
+    if not len(retval) == 7 \
+    or not retval[0]  == START_BYTE \
     or not retval[1]  == '\x03' \
     or not retval[2]  == '\x08' \
     or not retval[-1] == STOP_BYTE:
-        raise MCUException('Malformed answer')
+        raise MCUException('Malformed answer, got {}'.format(retval.encode('hex')))
     else:
         return THERMAL_TABLE[ ord(retval[5]) ]
 
 COMMANDS = {
-    'DEVICE_READY'    : ("\xfa\x03\x01\x00\x00\x00\xfb", check_ack),
-    'DEVICE_POWEROFF' : ("\xfa\x03\x03\x01\x01\x14\xfb", check_ack),
+    'DEVICE_READY'    : ("\xfa\x03\x01\x00\x00\x00\xfb", empty_answer),
+    'DEVICE_POWEROFF' : ("\xfa\x03\x03\x01\x01\x14\xfb", empty_answer),
     'THERMAL_STATUS'  : ("\xfa\x03\x08\x00\x00\x00\xfb", calculate_cpu_temp),
-    'FAN_STOP'        : ("\xfa\x02\x00\x00\x00\x00\xfb", check_ack),
-    'FAN_HALF'        : ("\xfa\x02\x00\x01\x00\x00\xfb", check_ack),
-    'FAN_FULL'        : ("\xfa\x02\x00\x02\x00\x00\xfb", check_ack),
-    'POWER_LED_ON'    : ("\xfa\x03\x06\x01\x00\x01\xfb", check_ack),
-    'POWER_LED_OFF'   : ("\xfa\x03\x06\x00\x00\x01\xfb", check_ack),
-    'POWER_LED_FLASH' : ("\xfa\x03\x06\x02\x00\x01\xfb", check_ack)
+    'FAN_STOP'        : ("\xfa\x02\x00\x00\x00\x00\xfb", empty_answer),
+    'FAN_HALF'        : ("\xfa\x02\x00\x01\x00\x00\xfb", empty_answer),
+    'FAN_FULL'        : ("\xfa\x02\x00\x02\x00\x00\xfb", empty_answer),
+    'POWER_LED_ON'    : ("\xfa\x03\x06\x01\x00\x01\xfb", empty_answer),
+    'POWER_LED_OFF'   : ("\xfa\x03\x06\x00\x00\x01\xfb", empty_answer),
+    'POWER_LED_FLASH' : ("\xfa\x03\x06\x02\x00\x01\xfb", empty_answer)
 }
 
 UART = '/dev/ttyS1'
-RETRIES = 5
+LOCK_TIMEOUT = datetime.timedelta(seconds = 30)
+RESPONSE_TIMEOUT = datetime.timedelta(seconds = 10)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('command', choices = COMMANDS.keys())
     args = parser.parse_args(sys.argv[1:])
 
-    with serial.Serial(UART, 115200, 8, "N", 1, 1) as serial_port:
-        for _ in range(RETRIES):
+    with serial.Serial(UART, 115200, 8, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 1) as serial_port:
+        timestamp = datetime.datetime.now()
+        while datetime.datetime.now() < timestamp + LOCK_TIMEOUT:
             try:
                 fcntl.flock(serial_port.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
-                warning('Serial port is busy, waiting 1 second')
-                time.sleep(1)
+                continue
             else:
                 break
         else:
-            warning('Serial port is busy, tried {} times'.format(RETRIES))
+            warning('Serial port is busy. Waited {}.'.format(LOCK_TIMEOUT))
             sys.exit(1)
 
-        for _ in range(RETRIES):
-            cmd_bytes, cmd_func = COMMANDS[args.command]
-            serial_port.write( cmd_bytes )
-            serial_port.flush()
+        cmd_bytes, cmd_func = COMMANDS[args.command]
+        serial_port.write( cmd_bytes )
+        serial_port.flush()
 
-            time.sleep(1)
+        timestamp = datetime.datetime.now()
+        buf = ''
+        while datetime.datetime.now() < timestamp + RESPONSE_TIMEOUT:
+            buf += serial_port.read()
 
-            retval = ''
-            while True:
-                buf  = serial_port.read(7)
-                if len(buf) == 0:
+            if len(buf) >= 7 and buf[-7:] == ACK:
+                try:
+                    print(cmd_func(buf[:-7]))
                     break
-
-                retval += buf
-
-            try:
-                print(cmd_func(retval))
-                sys.exit(0)
-            except MCUException as e:
-                warning(e)
-                warning('Trying again in 1 second')
-                time.sleep(1)
-            except Exception as e:
-                warning(e)
-                sys.exit(1)
+                except MCUException as e:
+                    warning(e)
+                    sys.exit(1)
         else:
-            warning('Unable to communicate properly with MCU, tried {} times'.format(RETRIES))
+            warning('MCU did not respond with ACK. Waited {} and only got {}.'.format(RESPONSE_TIMEOUT, buf.encode('hex')))
             sys.exit(1)
 
+        sys.exit(0)
