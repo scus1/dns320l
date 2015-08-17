@@ -15,9 +15,12 @@ START_BYTE      = "\xfa"
 STOP_BYTE       = "\xfb"
 ACK             = "\xfa\x30\x00\x00\x00\x00\xfb"
 
+class MCUException(Exception):
+    pass
+
 def check_ack(retval):
     if not retval[-7:] == ACK:
-        raise Exception('MCU did not respond with ACK')
+        raise MCUException('MCU did not respond with ACK')
     else:
         return retval[:-7]
 
@@ -57,7 +60,7 @@ def calculate_cpu_temp(retval):
     or not retval[1]  == '\x03' \
     or not retval[2]  == '\x08' \
     or not retval[-1] == STOP_BYTE:
-        raise Exception('Malformed answer')
+        raise MCUException('Malformed answer')
     else:
         return THERMAL_TABLE[ ord(retval[5]) ]
 
@@ -74,6 +77,7 @@ COMMANDS = {
 }
 
 UART = '/dev/ttyS1'
+RETRIES = 5
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -81,7 +85,7 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
 
     with serial.Serial(UART, 115200, 8, "N", 1, 1) as serial_port:
-        while True:
+        for _ in range(RETRIES):
             try:
                 fcntl.flock(serial_port.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
@@ -89,24 +93,36 @@ if __name__ == "__main__":
                 time.sleep(1)
             else:
                 break
-
-        cmd_bytes, cmd_func = COMMANDS[args.command]
-        serial_port.write( cmd_bytes )
-        serial_port.flush()
-
-        retval = ''
-        while True:
-            buf  = serial_port.read(7)
-            if len(buf) == 0:
-                break
-
-            retval += buf
-
-        try:
-            print(cmd_func(retval))
-            sys.exit(0)
-        except Exception as e:
-            warning(e)
+        else:
+            warning('Serial port is busy, tried {} times'.format(RETRIES))
             sys.exit(1)
 
+        for _ in range(RETRIES):
+            cmd_bytes, cmd_func = COMMANDS[args.command]
+            serial_port.write( cmd_bytes )
+            serial_port.flush()
+
+            time.sleep(1)
+
+            retval = ''
+            while True:
+                buf  = serial_port.read(7)
+                if len(buf) == 0:
+                    break
+
+                retval += buf
+
+            try:
+                print(cmd_func(retval))
+                sys.exit(0)
+            except MCUException as e:
+                warning(e)
+                warning('Trying again in 1 second')
+                time.sleep(1)
+            except Exception as e:
+                warning(e)
+                sys.exit(1)
+        else:
+            warning('Unable to communicate properly with MCU, tried {} times'.format(RETRIES))
+            sys.exit(1)
 
