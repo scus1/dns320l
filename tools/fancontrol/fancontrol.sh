@@ -13,8 +13,7 @@ else
 fi
     
 
-NEW_FAN_SPEED=FAN_STOP
-CUR_FAN_SPEED=FAN_STOP
+CUR_FAN_SPEED=FAN_INIT
 
 while true; do
     MAX_TEMP=$(mcu_communicate THERMAL_STATUS)
@@ -54,6 +53,11 @@ while true; do
         FAN_FULL)
             [ "$MAX_TEMP" -lt "$((HIGH_THRESHOLD-HYSTERESIS))" ] && NEW_FAN_SPEED=FAN_HALF
             [ "$MAX_TEMP" -lt "$((LOW_THRESHOLD -HYSTERESIS))" ] && NEW_FAN_SPEED=FAN_STOP
+            ;;
+        FAN_INIT)
+            NEW_FAN_SPEED=FAN_FULL
+            [ "$MAX_TEMP" -lt "$((HIGH_THRESHOLD))" ] && NEW_FAN_SPEED=FAN_HALF
+            [ "$MAX_TEMP" -lt "$((LOW_THRESHOLD))" ] && NEW_FAN_SPEED=FAN_STOP
             ;;
             
     esac
