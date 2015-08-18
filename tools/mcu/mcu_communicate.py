@@ -86,6 +86,8 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
 
     with serial.Serial(UART, 115200, 8, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 1) as serial_port:
+        serial_port.nonblocking()
+
         timestamp = datetime.datetime.now()
         while datetime.datetime.now() < timestamp + LOCK_TIMEOUT:
             try:

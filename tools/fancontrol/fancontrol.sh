@@ -13,6 +13,7 @@ else
 fi
     
 
+NEW_FAN_SPEED=FAN_STOP
 CUR_FAN_SPEED=FAN_STOP
 
 while true; do
