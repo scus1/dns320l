@@ -31,6 +31,8 @@ while true; do
         if [ "$?" -ne 0 ]; then
             MAX_TEMP=99
             >&2 echo "Could not determine HDD ${HDD} temperature, assuming worst case"
+        elif [ -z "$HDD_TEMP" ]; then
+            $DEBUG && echo "HDD ${HDD} temperature unknown, device asleep?"
         else
             $DEBUG && echo "HDD ${HDD} temperature is ${HDD_TEMP}"
             if [ "$HDD_TEMP" -gt "$MAX_TEMP" ]; then
