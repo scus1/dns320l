@@ -26,8 +26,8 @@ install_tools:
 	install -m 0755 mcu/mcu_communicate.py   $(DESTDIR)/usr/bin/mcu_communicate
 	install -m 0755 hddwatch/hddwatch.sh     $(DESTDIR)/usr/bin/hddwatch
 	install -m 0755 fancontrol/fancontrol.sh $(DESTDIR)/usr/bin/fancontrol
-	install -d $(DESTDIR)/etc/defaults
-	install fancontrol/fancontrol_defaults   $(DESTDIR)/etc/defaults/fancontrol
+	install -d $(DESTDIR)/etc/default
+	install fancontrol/fancontrol_default    $(DESTDIR)/etc/default/fancontrol
 
 install_systemd_config:
 	install -d $(DESTDIR)/lib/systemd/system
@@ -77,5 +77,5 @@ ifeq "$(wildcard $(DESTDIR)/DEBIAN/prerm)" ""
 endif
 
 ifeq "$(wildcard $(DESTDIR)/DEBIAN/conffiles)" ""
-	@echo '/etc/defaults/fancontrol'    >  $(DESTDIR)/DEBIAN/conffiles
+	@echo '/etc/default/fancontrol'     >  $(DESTDIR)/DEBIAN/conffiles
 endif

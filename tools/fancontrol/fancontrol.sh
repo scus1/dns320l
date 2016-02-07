@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ -e /etc/defaults/fancontrol ]; then
-    . /etc/defaults/fancontrol
+if [ -e /etc/default/fancontrol ]; then
+    . /etc/default/fancontrol
 else
     >&2 echo "No config found, taking default values"
 
