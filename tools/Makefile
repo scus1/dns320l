@@ -26,8 +26,8 @@ install_tools:
 	install -m 0755 mcu/mcu_communicate.py   $(DESTDIR)/usr/bin/mcu_communicate
 	install -m 0755 hddwatch/hddwatch.sh     $(DESTDIR)/usr/bin/hddwatch
 	install -m 0755 fancontrol/fancontrol.sh $(DESTDIR)/usr/bin/fancontrol
-	install -d $(DESTDIR)/etc/defaults
-	install fancontrol/fancontrol_defaults   $(DESTDIR)/etc/defaults/fancontrol
+	install -d $(DESTDIR)/etc/default
+	install fancontrol/fancontrol_default    $(DESTDIR)/etc/default/fancontrol
 
 install_systemd_config:
 	install -d $(DESTDIR)/lib/systemd/system
@@ -54,7 +54,7 @@ ifeq "$(wildcard $(DESTDIR)/DEBIAN/control)" ""
 	@echo 'Architecture: armel'                    >> $(DESTDIR)/DEBIAN/control
 	@echo 'Installed-Size: $(SIZE)'                >> $(DESTDIR)/DEBIAN/control
 	@echo 'Maintainer: $(USER)'                    >> $(DESTDIR)/DEBIAN/control
-	@echo 'Depends: systemd'                       >> $(DESTDIR)/DEBIAN/control
+	@echo 'Depends: systemd hddtemp'               >> $(DESTDIR)/DEBIAN/control
 	@echo 'Description: Tools for D-Link DNS-320L' >> $(DESTDIR)/DEBIAN/control
 
 	editor $(DESTDIR)/DEBIAN/control
@@ -67,15 +67,17 @@ endif
 ifeq "$(wildcard $(DESTDIR)/DEBIAN/postinst)" ""
 	@echo 'systemctl enable device_ready.service'    >  $(DESTDIR)/DEBIAN/postinst
 	@echo 'systemctl enable device_poweroff.service' >> $(DESTDIR)/DEBIAN/postinst
+	@echo 'systemctl enable fancontrol.service'      >> $(DESTDIR)/DEBIAN/postinst
 	@chmod 755 $(DESTDIR)/DEBIAN/postinst
 endif
 
 ifeq "$(wildcard $(DESTDIR)/DEBIAN/prerm)" ""
 	@echo 'systemctl disable device_ready.service'    >  $(DESTDIR)/DEBIAN/prerm
 	@echo 'systemctl disable device_poweroff.service' >> $(DESTDIR)/DEBIAN/prerm
+	@echo 'systemctl disable fancontrol.service'      >> $(DESTDIR)/DEBIAN/prerm
 	@chmod 755 $(DESTDIR)/DEBIAN/prerm
 endif
 
 ifeq "$(wildcard $(DESTDIR)/DEBIAN/conffiles)" ""
-	@echo '/etc/defaults/fancontrol'    >  $(DESTDIR)/DEBIAN/conffiles
+	@echo '/etc/default/fancontrol'     >  $(DESTDIR)/DEBIAN/conffiles
 endif

@@ -5,3 +5,6 @@ OnFailure=device_failure.service
 [Service]
 Restart=always
 ExecStart=/usr/bin/fancontrol
+
+[Install]
+WantedBy=multi-user.target
