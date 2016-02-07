@@ -67,12 +67,14 @@ endif
 ifeq "$(wildcard $(DESTDIR)/DEBIAN/postinst)" ""
 	@echo 'systemctl enable device_ready.service'    >  $(DESTDIR)/DEBIAN/postinst
 	@echo 'systemctl enable device_poweroff.service' >> $(DESTDIR)/DEBIAN/postinst
+	@echo 'systemctl enable fancontrol.service'      >> $(DESTDIR)/DEBIAN/postinst
 	@chmod 755 $(DESTDIR)/DEBIAN/postinst
 endif
 
 ifeq "$(wildcard $(DESTDIR)/DEBIAN/prerm)" ""
 	@echo 'systemctl disable device_ready.service'    >  $(DESTDIR)/DEBIAN/prerm
 	@echo 'systemctl disable device_poweroff.service' >> $(DESTDIR)/DEBIAN/prerm
+	@echo 'systemctl disable fancontrol.service'      >> $(DESTDIR)/DEBIAN/prerm
 	@chmod 755 $(DESTDIR)/DEBIAN/prerm
 endif
 
