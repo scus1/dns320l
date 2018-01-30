@@ -47,15 +47,15 @@ deb_control: SIZE = $(shell du -sk $(DESTDIR) | cut -f1)
 deb_control:
 	@install -d $(DESTDIR)/DEBIAN
 ifeq "$(wildcard $(DESTDIR)/DEBIAN/control)" ""
-	@echo 'Package: dns320l-tools'                 >  $(DESTDIR)/DEBIAN/control
-	@echo 'Version: $(VERSION)'                    >> $(DESTDIR)/DEBIAN/control
-	@echo 'Section: misc'                          >> $(DESTDIR)/DEBIAN/control
-	@echo 'Priority: important'                    >> $(DESTDIR)/DEBIAN/control
-	@echo 'Architecture: armel'                    >> $(DESTDIR)/DEBIAN/control
-	@echo 'Installed-Size: $(SIZE)'                >> $(DESTDIR)/DEBIAN/control
-	@echo 'Maintainer: $(USER)'                    >> $(DESTDIR)/DEBIAN/control
-	@echo 'Depends: systemd hddtemp python-serial' >> $(DESTDIR)/DEBIAN/control
-	@echo 'Description: Tools for D-Link DNS-320L' >> $(DESTDIR)/DEBIAN/control
+	@echo 'Package: dns320l-tools'                   >  $(DESTDIR)/DEBIAN/control
+	@echo 'Version: $(VERSION)'                      >> $(DESTDIR)/DEBIAN/control
+	@echo 'Section: misc'                            >> $(DESTDIR)/DEBIAN/control
+	@echo 'Priority: important'                      >> $(DESTDIR)/DEBIAN/control
+	@echo 'Architecture: armel'                      >> $(DESTDIR)/DEBIAN/control
+	@echo 'Installed-Size: $(SIZE)'                  >> $(DESTDIR)/DEBIAN/control
+	@echo 'Maintainer: $(USER)'                      >> $(DESTDIR)/DEBIAN/control
+	@echo 'Depends: systemd, hddtemp, python-serial' >> $(DESTDIR)/DEBIAN/control
+	@echo 'Description: Tools for D-Link DNS-320L'   >> $(DESTDIR)/DEBIAN/control
 
 	editor $(DESTDIR)/DEBIAN/control
 else
