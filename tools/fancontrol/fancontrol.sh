@@ -26,17 +26,19 @@ while true; do
 
     for HDD in 1 2; do
         DEV=$(find /sys/devices/platform/ocp@f1000000/f1080000.sata/ata${HDD}/ -regex ".*/sd[a-z]$" -printf %f)
-        HDD_TEMP=$(hddtemp -n /dev/${DEV})
-        
-        if [ "$?" -ne 0 ]; then
-            MAX_TEMP=99
-            >&2 echo "Could not determine HDD ${HDD} temperature, assuming worst case"
-        elif [ -z "$HDD_TEMP" ]; then
-            $DEBUG && echo "HDD ${HDD} temperature unknown, device asleep?"
-        else
-            $DEBUG && echo "HDD ${HDD} temperature is ${HDD_TEMP}"
-            if [ "$HDD_TEMP" -gt "$MAX_TEMP" ]; then
-                MAX_TEMP=$HDD_TEMP
+        if [ -n "$DEV" ]; then
+            HDD_TEMP=$(hddtemp -n /dev/${DEV})
+
+            if [ "$?" -ne 0 ]; then
+                MAX_TEMP=99
+                >&2 echo "Could not determine HDD ${HDD} temperature, assuming worst case"
+            elif [ -z "$HDD_TEMP" ]; then
+                $DEBUG && echo "HDD ${HDD} temperature unknown, device asleep?"
+            else
+                $DEBUG && echo "HDD ${HDD} temperature is ${HDD_TEMP}"
+                if [ "$HDD_TEMP" -gt "$MAX_TEMP" ]; then
+                    MAX_TEMP=$HDD_TEMP
+                fi
             fi
         fi
     done
