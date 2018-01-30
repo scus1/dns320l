@@ -54,7 +54,7 @@ ifeq "$(wildcard $(DESTDIR)/DEBIAN/control)" ""
 	@echo 'Architecture: armel'                    >> $(DESTDIR)/DEBIAN/control
 	@echo 'Installed-Size: $(SIZE)'                >> $(DESTDIR)/DEBIAN/control
 	@echo 'Maintainer: $(USER)'                    >> $(DESTDIR)/DEBIAN/control
-	@echo 'Depends: systemd hddtemp'               >> $(DESTDIR)/DEBIAN/control
+	@echo 'Depends: systemd hddtemp python-serial' >> $(DESTDIR)/DEBIAN/control
 	@echo 'Description: Tools for D-Link DNS-320L' >> $(DESTDIR)/DEBIAN/control
 
 	editor $(DESTDIR)/DEBIAN/control
